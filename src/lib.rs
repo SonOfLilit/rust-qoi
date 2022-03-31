@@ -94,18 +94,16 @@ pub fn decode<R: Read>(cursor: R) -> Qoi {
                     )
                 }
                 2 => {
-                    let dg = ((tag >> 0) & 0b11111).wrapping_sub(32);
-                    assert!(dg >= (256 - 32) as u8 && dg < 32);
+                    let dg = ((tag >> 0) & 0b111111).wrapping_sub(32);
+                    assert!(dg >= (256 - 32) as u8 || dg < 32);
                     let byte = read8();
                     let dr_dg = ((byte >> 4) & 0b1111).wrapping_sub(8);
                     let db_dg = ((byte >> 0) & 0b1111).wrapping_sub(8);
-                    let g = prev.g.wrapping_sub(dg);
-                    let r = dr_dg
-                        .wrapping_add(g.wrapping_sub(prev.g))
-                        .wrapping_sub(prev.r);
-                    let b = db_dg
-                        .wrapping_add(g.wrapping_sub(prev.g))
-                        .wrapping_sub(prev.b);
+                    let g = prev.g.wrapping_add(dg);
+                    let r = prev.r.wrapping_add(dr_dg)
+                        .wrapping_add(g.wrapping_sub(prev.g));
+                    let b = prev.b.wrapping_add(db_dg)
+                        .wrapping_add(g.wrapping_sub(prev.g));
                     RGBA::new(r, g, b, prev.a)
                 }
                 3 => {
