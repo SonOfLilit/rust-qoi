@@ -108,11 +108,10 @@ pub fn decode<R: Read>(cursor: R) -> Qoi {
                 }
                 3 => {
                     let length = tag & 0b111111;
-                    for _ in 0..length {
+                    for _ in 0..=length {
                         decoded(prev);
-                        continue;
                     }
-                    prev
+                    continue;
                 }
                 _ => panic!(),
             },
